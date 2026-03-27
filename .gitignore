@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+.venv/
+venv/
+env/
+
+saved_models/
+Accident Images Analysis Dataset/
+*.h5
+videos/
+
+tempCodeRunnerFile.py

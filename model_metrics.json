@@ -1,0 +1,8 @@
+{
+    "cnn": {
+        "accuracy": 53.5,
+        "precision": 53.5,
+        "recall": 53.5,
+        "f1_score": 53.5
+    }
+}

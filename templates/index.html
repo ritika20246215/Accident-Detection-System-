@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Accident Detection Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --bg-color: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --danger: #EF4444;
+            --safe: #10B981;
+            --border: #E2E8F0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+
+        body {
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            color: var(--text-main);
+        }
+
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 30px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-container { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+            height: fit-content;
+        }
+
+        .card:hover { transform: translateY(-5px); }
+
+        .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+        .header p { color: var(--text-muted); font-size: 14px; margin-bottom: 32px; }
+
+        label { display: block; font-size: 13px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; margin-top: 24px; letter-spacing: 0.5px; }
+
+        /* Modern Upload Box */
+        .file-upload-wrapper {
+            position: relative; border: 2px dashed #CBD5E1; border-radius: 16px;
+            padding: 40px 20px; text-align: center; background: #F8FAFC; cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .file-upload-wrapper:hover { border-color: var(--primary); background: #EEF2FF; }
+        .file-upload-wrapper input[type="file"] { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        #fileName { font-size: 14px; font-weight: 500; color: var(--text-muted); }
+
+        /* Select Input Styling */
+        select {
+            width: 100%; padding: 14px 16px; border: 1px solid var(--border); border-radius: 12px;
+            background-color: #F9FAFB; font-size: 15px; outline: none; appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 16px center; background-size: 16px;
+        }
+        select:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); }
+
+        .btn-submit {
+            width: 100%; background: var(--primary); color: white; padding: 16px; border: none;
+            border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 24px;
+            display: flex; justify-content: center; align-items: center; gap: 12px; transition: all 0.3s;
+        }
+        .btn-submit:hover { background: var(--primary-hover); box-shadow: 0 8px 20px rgba(79, 70, 229, 0.3); }
+
+        /* Animation Spinner */
+        .spinner { display: none; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s infinite linear; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Result Alert */
+        .result-box { margin-top: 24px; padding: 18px; border-radius: 14px; text-align: center; font-weight: 700; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        .text-danger { color: var(--danger); background: #FEF2F2; border: 1px solid #FCA5A5; }
+        .text-safe { color: var(--safe); background: #ECFDF5; border: 1px solid #6EE7B7; }
+
+        /* Metrics Grid */
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; }
+        .metric-box { background: #F8FAFC; padding: 20px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
+        .metric-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+        .metric-value { font-size: 26px; font-weight: 800; color: var(--primary); margin-top: 6px; }
+        .placeholder-text { color: var(--text-muted); font-size: 14px; text-align: center; margin-top: 60px; font-style: italic; }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <div class="card">
+            <div class="header">
+                <h1>Analysis Center</h1>
+                <p>Detect accidents using advanced Deep Learning models.</p>
+            </div>
+
+            <form id="uploadForm" action="/predict" method="POST" enctype="multipart/form-data">
+                <label>File Upload</label>
+                <div class="file-upload-wrapper">
+                    <div id="fileName">📁 Click to upload video or image</div>
+                    <input type="file" name="video" id="fileInput" accept="video/*, image/*" required>
+                </div>
+
+                <label>Inference Engine</label>
+                <select name="model_choice" id="mainModelSelect" required>
+                    <option value="" disabled selected>Select Architecture...</option>
+                    <option value="cnn">Custom CNN</option>
+                    <option value="vgg16">VGG16</option>
+                    <option value="vgg19">VGG19</option>
+                    <option value="resnet50">ResNet50</option>
+                    <option value="googlenet">GoogleNet (InceptionV3)</option>
+                    <option value="mobilenetv2">MobileNetV2</option>
+                </select>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span id="btnText">Run Detection</span>
+                    <div class="spinner" id="spinner"></div>
+                </button>
+            </form>
+
+            {% if prediction %}
+                <div class="result-box text-{{ color }}">
+                    {{ prediction }}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <div class="header">
+                <h1>Model Analytics</h1>
+                <p>Review validation benchmarks for each architecture.</p>
+            </div>
+
+            <label>Model Comparison</label>
+            <select id="metricsSelector">
+                <option value="" disabled selected>Select model to view stats...</option>
+                <option value="cnn">Custom CNN</option>
+                <option value="vgg16">VGG16</option>
+                <option value="vgg19">VGG19</option>
+                <option value="resnet50">ResNet50</option>
+                <option value="googlenet">GoogleNet (InceptionV3)</option>
+                <option value="mobilenetv2">MobileNetV2</option>
+            </select>
+
+            <div id="metricsContent">
+                <div class="placeholder-text">Select a model to populate dashboard</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Load metrics from Flask
+        const modelMetrics = {{ metrics | tojson | safe }};
+
+        // UI Interactions
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            if(e.target.files.length > 0) {
+                document.getElementById('fileName').innerText = '📄 ' + e.target.files[0].name;
+                document.getElementById('fileName').style.color = '#4F46E5';
+            }
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function() {
+            document.getElementById('submitBtn').style.pointerEvents = 'none';
+            document.getElementById('btnText').innerText = 'Processing...';
+            document.getElementById('spinner').style.display = 'block';
+        });
+
+        // Dashboard Switcher
+        document.getElementById('metricsSelector').addEventListener('change', function(e) {
+            const selectedModel = e.target.value;
+            const contentDiv = document.getElementById('metricsContent');
+            const data = modelMetrics[selectedModel];
+            
+            if (data) {
+                contentDiv.innerHTML = `
+                    <div class="metrics-grid">
+                        <div class="metric-box">
+                            <div class="metric-title">Accuracy</div>
+                            <div class="metric-value">${data.accuracy}%</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-title">Precision</div>
+                            <div class="metric-value">${data.precision}%</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-title">Recall</div>
+                            <div class="metric-value">${data.recall}%</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-title">F1 Score</div>
+                            <div class="metric-value">${data.f1_score}%</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                contentDiv.innerHTML = `<div class="placeholder-text" style="color: #EF4444;">Metrics for this model are not available. Run training first.</div>`;
+            }
+        });
+    </script>
+</body>
+</html>
