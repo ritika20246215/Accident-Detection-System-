@@ -7,9 +7,7 @@ __pycache__/
 venv/
 env/
 
-saved_models/
-Accident Images Analysis Dataset/
-*.h5
-videos/
-
 tempCodeRunnerFile.py
+flask_stdout.log
+flask_stderr.log
+finalads/
